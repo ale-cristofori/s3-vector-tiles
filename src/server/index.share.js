@@ -1,4 +1,7 @@
 // Import required AWS SDK clients and commands for Node.js
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 const http = require('http');
 const AWS = require('aws-sdk');
 const geojsonvt = require('geojson-vt');
@@ -25,45 +28,37 @@ const getParams = {
     Key: "telephone_districts.json"
 };
 
+// Create a new express app instance
+const app = express();
+const PORT = process.env.PORT || 5000;
+app.use(express.static("build"));
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+let tileIndex;
+
+app.get('/tileserver', cors() , (req, res) => {
+    const z = parseInt(req.query.z);
+    const x = parseInt(req.query.x);
+    const y = parseInt(req.query.y);
+    const tile = tileIndex.getTile(z, x, y);
+    if (!tile) {
+        return res.status(204).end();
+    }
+    // encode the data as protobuf
+    const buffer = Buffer.from(vtpbf.fromGeojsonVt({ geojsonLayer: tile }));
+    res.send(buffer);
+});
+
 s3.getObject(getParams, (error, data) => {
     if (error) console.log(error, error.stack);
     else {
         let jsonData = data.Body.toString('utf-8');
         jsonData = JSON.parse(jsonData)
-        const tileIndex = geojsonvt(jsonData);
-        // generate the vectors for an individual tile on each request
-       // const tile = tileIndex.getTile(z, x, y);
-
-        // expects urls in the format: /{Z}/{X}/{Y}.pbf
-        const handleRequest = (req, res) => {
-            const [z, x, y] = req.url
-            .replace('.pbf', '')
-            .split('/')
-            .filter(n => n)
-            .map(n => parseInt(n))
-        
-            // get the vectors for this tile
-            const tile = tileIndex.getTile(z, x, y)
-        
-            // if there is no tile data, return an empty response
-            if (!tile) {
-                res.writeHead(204, { 'Access-Control-Allow-Origin': '*' })
-                return res.end()
-            }
-
-            // encode the data as protobuf
-            const buffer = Buffer.from(vtpbf.fromGeojsonVt({ geojsonLayer: tile }))
-
-            // write the buffer to the response stream
-            res.writeHead(200, {
-                'Content-Type': 'application/protobuf',
-                'Access-Control-Allow-Origin': '*'
-            })
-            res.write(buffer, 'binary')
-            res.end(null, 'binary')
-        }
-        const port = process.env.PORT || 5000
-        http.createServer(handleRequest).listen(port);
-        console.log(`listening on port ${port}`);
+        tileIndex = geojsonvt(jsonData);
+        app.listen(PORT, () => {
+            console.log('App is listening on port 5000!');
+        });
     }
 });
