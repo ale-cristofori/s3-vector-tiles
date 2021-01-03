@@ -16,7 +16,7 @@ const bucketName = process.env.BUCKET_NAME;
 //Create S3 initial config for connection
 const config = {
     apiVersion: 'latest',
-    accessKeyId: PROCESS.env.S3_ACCESS_KEY_ID, 
+    accessKeyId: process.env.S3_ACCESS_KEY_ID, 
     secretAccessKey: process.env.S3_SECRET_KEY, 
     region: REGION
 };
