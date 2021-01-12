@@ -42,7 +42,7 @@ let tileIndex;
 app.get('/tileserver', cors() , (req, res) => {
     const z = parseInt(req.query.z);
     const x = parseInt(req.query.x);
-    const y = parseInt(req.query.y);
+    const y = parseInt(req.query.y.replace('.pbf', ''));
     const tile = tileIndex.getTile(z, x, y);
     if (!tile) {
         return res.status(204).end();

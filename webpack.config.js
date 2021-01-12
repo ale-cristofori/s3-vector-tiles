@@ -38,7 +38,10 @@ module.exports = {
         contentBase: path.resolve(__dirname, './build'),
         open: true,
         hot: true,
-        port: 5000
+        port: 3000,
+        proxy: {
+          '/tileserver': 'http://localhost:5000'
+        }
     },
     devtool: 'source-map'
 }

@@ -19,13 +19,14 @@ const MapComponent = (props) => {
   // get ref to div element - OpenLayers will render into this div
   const mapRef = useRef()
   
-  // initialize map on first render - logic formerly put into componentDidMount
+  // initialize map on first render
   useEffect( () => {
 
+    //Tile layer - notice the URL endpoint
     const vectorLayer = new VectorTileLayer ({
         source: new VectorTileSource({
           format: new MVT(),
-          url: '/tileserver/?z={z}&x={x}&y={y}'
+          url: '/tileserver/?z={z}&x={x}&y={y}.pbf'
         }),
         style: function(feature) {
           return new Style({
@@ -51,11 +52,14 @@ const MapComponent = (props) => {
         zoom: 4
       }),
       controls: []
-    })
+    });
 
-    // save map and vector layer references to state
+    // save map and vector tile layer references to state
     setMap(initialMap)
 
+    //the second argument here is an empty array, 
+    //it means the useEffect code will only run once when
+    //the component will mount 
   },[])
 
   // render component

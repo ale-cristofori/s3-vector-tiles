@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run test",
-    "dev": "webpack --mode development",
-    "start": "webpack serve --mode development --config ./webpack.config.js",
+    "dev-server": "nodemon ./src/server/index.js",
+    "dev-client": "webpack serve --mode development --config ./webpack.config.js",
+    "start": "nodemon ./node_modules/concurrently/bin/concurrently.js \"npm:dev-server\" \"npm:dev-client\" ",
     "build": "webpack --mode production --config ./webpack.config.js"
   },
   "author": "Alessandro Cristofori",
@@ -27,8 +28,10 @@
     "@babel/preset-react": "^7.12.10",
     "babel-loader": "^8.2.2",
     "clean-webpack-plugin": "^3.0.0",
+    "concurrently": "^5.3.0",
     "css-loader": "^5.0.1",
     "html-webpack-plugin": "^4.5.0",
+    "nodemon": "^2.0.7",
     "react-hot-loader": "^4.13.0",
     "sass": "^1.32.0",
     "sass-loader": "^10.1.0",
